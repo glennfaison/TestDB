@@ -1,4 +1,4 @@
-#TestDB Specs
+# TestDB Specs
 
 * init(directory: string): 
     - create "{directory}/.testDB" directory
