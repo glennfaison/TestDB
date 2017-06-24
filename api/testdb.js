@@ -96,12 +96,14 @@ TestDB.prototype.nameIsValid = function(name) {
     for (var i in referenceString) {
         referenceObj[referenceString[i]] = referenceString[i];
     }
-    return name.every(function(i) {
-        return name[i] in referenceObj;
-    }, this);
+    for (var i in name) {
+        if (!(name[i] in referenceObj)) { return false; }
+    }
+    return true;
 };
 
 TestDB.prototype.loadTable = function(tableName) {
+    if (_currentDirectoryState._tableStates[tableName]) { return; }
     if (!_self.nameIsValid(tableName) && !_self.tableNameExists(tableName)) {
         return;
     }
@@ -210,12 +212,32 @@ TestDB.prototype.dropTable = function(tableName) {
  * @param {any} record The record you want to insert.
  */
 TestDB.prototype.insertRecord = function(tableName, record) {
+    _self.loadTable(tableName);
     var primaryKey = _currentDirectoryState._tableStates[tableName].metaData.primaryKey;
     _currentDirectoryState._tableStates[tableName][record[primaryKey]] = record;
 };
 
 TestDB.prototype.deleteRecordWithKey = function(tableName, key) {
     delete _currentDirectoryState._tableStates[tableName][key];
+};
+
+TestDB.prototype.selectRecordWithKey = function(tableName, key) {
+    _self.loadTable(tableName);
+    if (!_currentDirectoryState._tableStates[tableName][key]) { return null; }
+    return _currentDirectoryState._tableStates[tableName][key];
+};
+
+TestDB.prototype.selectAllRecords = function(tableName) {
+    _self.loadTable(tableName);
+    var records = _currentDirectoryState._tableStates[tableName];
+    records = JSON.parse(JSON.stringify(records));
+    delete records["metaData"];
+    console.log(records);
+    var returnValue = [];
+    for (var key in records) {
+        returnValue.push(records[key]);
+    }
+    return returnValue;
 };
 
 module.exports = TestDB;
