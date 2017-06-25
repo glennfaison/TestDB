@@ -185,7 +185,7 @@ TestDB.prototype.commitTable = function(tableName) {
         _currentDirectoryState._tableStates[tableName] === null) { return; }
     var tableString = JSON.stringify(_currentDirectoryState._tableStates[tableName]);
     tableString = tableString.slice(1, tableString.length - 1);
-    fs.writeFileSync(_self.fullTablePath(tableName), tableString, { mode: 'w' });
+    fs.writeFileSync(_self.fullTablePath(tableName), tableString, { flag: 'w' });
     _self.commitDBIndex();
 };
 
@@ -216,6 +216,11 @@ TestDB.prototype.insertRecord = function(tableName, record) {
     var primaryKey = _currentDirectoryState._tableStates[tableName].metaData.primaryKey;
     _currentDirectoryState._tableStates[tableName][record[primaryKey]] = record;
 };
+
+TestDB.prototype.insertRecordWithKey = function(tableName, record, key) {
+    _self.loadTable(tableName);
+    _currentDirectoryState._tableStates[tableName][key] = record;
+}
 
 TestDB.prototype.deleteRecordWithKey = function(tableName, key) {
     delete _currentDirectoryState._tableStates[tableName][key];
