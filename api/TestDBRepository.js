@@ -54,7 +54,7 @@ TestDBRepository.prototype.findGettersAndSetters = function() {
     var gettersAndSetters = [];
     for (var i in keys) {
         if (keys[i].substr(0, 3) === "set") {
-            gettersAndSetters.push(keys[i].substr(2));
+            gettersAndSetters.push(keys[i].substr(3));
         }
     }
     return gettersAndSetters;
@@ -64,7 +64,7 @@ TestDBRepository.prototype.findGettersAndSetters = function(instance) {
     var gettersAndSetters = [];
     for (var i in keys) {
         if (keys[i].substr(0, 3) === "set") {
-            gettersAndSetters.push(keys[i].substr(2));
+            gettersAndSetters.push(keys[i].substr(3));
         }
     }
     return gettersAndSetters;
