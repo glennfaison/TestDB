@@ -26,15 +26,41 @@ TestDBRepository.prototype.RecordClassToJSONObject = function() {
     var returnValue = {};
     for (var i in _gettersAndSetters) {
         var propertyName = _gettersAndSetters[0].toLowerCase() + _gettersAndSetters[i].substr(1);
-        returnValue[propertyName] = _self["get" + _gettersAndSetters[i]]();
+        var tempObj = _self["get" + _gettersAndSetters[i]]();
+        if (typeof(tempObj) !== typeof({}) && tempObj !== null) {
+            returnValue[propertyName] = tempObj;
+            continue;
+        }
+        returnValue[propertyName] = _self.RecordClassToJSONObject(tempObj);
     }
     return returnValue;
 };
-TestDBRepository.prototype.RecordClassToString = function() {
-    return JSON.stringify(_self.RecordClassToJSONObject());
+TestDBRepository.prototype.RecordClassToJSONObject = function(instance) {
+    var returnValue = {};
+    var gettersAndSetters = _self.findGettersAndSetters(instance);
+    for (var i in gettersAndSetters) {
+        var propertyName = gettersAndSetters[0].toLowerCase() + gettersAndSetters[i].substr(1);
+        var tempObj = _self["get" + gettersAndSetters[i]]();
+        if (typeof(tempObj) !== typeof({}) && tempObj !== null) {
+            returnValue[propertyName] = tempObj;
+            continue;
+        }
+        returnValue[propertyName] = _self.RecordClassToJSONObject(tempObj);
+    }
+    return returnValue;
 };
 TestDBRepository.prototype.findGettersAndSetters = function() {
     var keys = Object.keys(_RecordClass.prototype);
+    var gettersAndSetters = [];
+    for (var i in keys) {
+        if (keys[i].substr(0, 3) === "set") {
+            gettersAndSetters.push(keys[i].substr(2));
+        }
+    }
+    return gettersAndSetters;
+};
+TestDBRepository.prototype.findGettersAndSetters = function(instance) {
+    var keys = Object.keys(instance.constructor.prototype);
     var gettersAndSetters = [];
     for (var i in keys) {
         if (keys[i].substr(0, 3) === "set") {
