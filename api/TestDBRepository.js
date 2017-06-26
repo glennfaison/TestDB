@@ -82,9 +82,9 @@ TestDBRepository.prototype.delete = function(id) {
 TestDBRepository.prototype.exists = function(id) {
     return _testdb.selectRecordWithKey(_dbName, "" + id) !== null;
 };
-TestDBRepository.prototype.save = function(user) {
-    user = _self.RecordClassToJSONObject(user);
-    _testdb.insertRecordWithKey(_dbName, user, "" + user.id);
+TestDBRepository.prototype.save = function(instance) {
+    instance = _self.RecordClassToJSONObject(instance);
+    _testdb.insertRecordWithKey(_dbName, instance, "" + instance.id);
     _testdb.commitTable(_dbName);
 };
 
