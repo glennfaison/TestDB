@@ -12,7 +12,6 @@ function TestDBRepository(RecordClass, dbPath, dbName) {
     _RecordClass = RecordClass
     _dbPath = dbPath;
     _dbName = dbName;
-    _gettersAndSetters = null;
 
     _testdb = new TestDB();
     _testdb.initDB(_dbPath);
@@ -20,62 +19,50 @@ function TestDBRepository(RecordClass, dbPath, dbName) {
     _testdb.createTable(_dbName);
     _testdb.commitTable(_dbName);
 };
-TestDBRepository.prototype.JSONObjectToRecordClass = function(instance) {
-    var returnValue = new _RecordClass();
+TestDBRepository.propertiesOf = function(instance) {
+    var keys = Object.keys(instance.constructor.prototype);
+    var properties = [];
+    for (var i in keys) {
+        if (keys[i].substr(0, 3) === "set") {
+            properties.push(keys[i].substr(3));
+        }
+    }
+    return properties;
+};
+TestDBRepository.classToJSONObject = function(instance) {
+    var returnValue = {};
+    var properties = TestDBRepository.propertiesOf(instance);
+    for (var i in properties) {
+        var propertyName = properties[i][0].toLowerCase() + properties[i].substr(1);
+        var tempObj = _self["get" + properties[i]]();
+        if (JSON.stringify(tempObj) !== JSON.stringify({}) && tempObj !== null) {
+            returnValue[propertyName] = tempObj;
+            continue;
+        }
+        returnValue[propertyName] = TestDBRepository.classToJSONObject(tempObj);
+    }
+    return returnValue;
+};
+TestDBRepository.prototype.JSONObjectToClass = function(instance, InstanceClass) {
+    var returnValue;
+    if (!InstanceClass) {
+        returnValue = new _RecordClass();
+    } else {
+        returnValue = new InstanceClass();
+    }
+
     for (var key in instance) {
         var setter = "set" + key[0].toUpperCase() + key.substr(1);
+        if (Object.keys(instance[key]).length > 0) {
+            var getter = "get" + key[0].toUpperCase() + key.substr(1);
+            var TempClass = (instance.prototype[getter]).constructor;
+            var tempInstance = _self.JSONObjectToClass(instance, TempClass);
+            returnValue[setter](tempInstance);
+            continue;
+        }
         returnValue[setter](instance[key]);
     }
     return returnValue;
-};
-TestDBRepository.prototype.RecordClassToJSONObject = function() {
-    var returnValue = {};
-    _gettersAndSetters = _self.findGettersAndSetters();
-    for (var i in _gettersAndSetters) {
-        var propertyName = _gettersAndSetters[0].toLowerCase() + _gettersAndSetters[i].substr(1);
-        var tempObj = _self["get" + _gettersAndSetters[i]]();
-        if (typeof(tempObj) !== typeof({}) && tempObj !== null) {
-            returnValue[propertyName] = tempObj;
-            continue;
-        }
-        returnValue[propertyName] = _self.RecordClassToJSONObject(tempObj);
-    }
-    return returnValue;
-};
-TestDBRepository.prototype.RecordClassToJSONObject = function(instance) {
-    var returnValue = {};
-    var gettersAndSetters = _self.findGettersAndSetters(instance);
-    for (var i in gettersAndSetters) {
-        var propertyName = gettersAndSetters[0].toLowerCase() + gettersAndSetters[i].substr(1);
-        var tempObj = _self["get" + gettersAndSetters[i]]();
-        if (typeof(tempObj) !== typeof({}) && tempObj !== null) {
-            returnValue[propertyName] = tempObj;
-            continue;
-        }
-        returnValue[propertyName] = _self.RecordClassToJSONObject(tempObj);
-    }
-    return returnValue;
-};
-TestDBRepository.prototype.findGettersAndSetters = function() {
-    var keys = Object.keys(_RecordClass.prototype);
-    var gettersAndSetters = [];
-    for (var i in keys) {
-        if (keys[i].substr(0, 3) === "set") {
-            gettersAndSetters.push(keys[i].substr(3));
-        }
-    }
-    return gettersAndSetters;
-};
-TestDBRepository.prototype.findGettersAndSetters = function(instance) {
-    var keys = Object.keys(instance.constructor.prototype);
-    var gettersAndSetters = [];
-    for (var i in keys) {
-        if (keys[i].substr(0, 3) === "set") {
-            gettersAndSetters.push(keys[i].substr(3));
-            ""
-        }
-    }
-    return gettersAndSetters;
 };
 TestDBRepository.prototype.findById = function(id) {
     return _testdb.selectRecordWithKey(_dbName, "" + id);
@@ -91,7 +78,7 @@ TestDBRepository.prototype.exists = function(id) {
     return _testdb.selectRecordWithKey(_dbName, "" + id) !== null;
 };
 TestDBRepository.prototype.save = function(instance) {
-    instance = _self.RecordClassToJSONObject(instance);
+    instance = _self.classToJSONObject(instance);
     _testdb.insertRecordWithKey(_dbName, instance, "" + instance.id);
     _testdb.commitTable(_dbName);
 };
