@@ -1,12 +1,18 @@
 var fs = require("fs");
 var TestDB = require("./testdb");
 
+/**
+ * @description Create a new TestDBRepository
+ * @param {any} RecordClass The class type which will be stored in this repository.
+ * @param {string} dbPath The path to the database. If it doesn't exist, it will be created.
+ * @param {string} dbName The name of the database table in which to store objects of {RecordClass} type.
+ */
 function TestDBRepository(RecordClass, dbPath, dbName) {
     _self = this;
     _RecordClass = RecordClass
     _dbPath = dbPath;
     _dbName = dbName;
-    _gettersAndSetters = _self.findGettersAndSetters();
+    _gettersAndSetters = null;
 
     _testdb = new TestDB();
     _testdb.initDB(_dbPath);
@@ -24,6 +30,7 @@ TestDBRepository.prototype.JSONObjectToRecordClass = function(instance) {
 };
 TestDBRepository.prototype.RecordClassToJSONObject = function() {
     var returnValue = {};
+    _gettersAndSetters = _self.findGettersAndSetters();
     for (var i in _gettersAndSetters) {
         var propertyName = _gettersAndSetters[0].toLowerCase() + _gettersAndSetters[i].substr(1);
         var tempObj = _self["get" + _gettersAndSetters[i]]();
@@ -65,6 +72,7 @@ TestDBRepository.prototype.findGettersAndSetters = function(instance) {
     for (var i in keys) {
         if (keys[i].substr(0, 3) === "set") {
             gettersAndSetters.push(keys[i].substr(3));
+            ""
         }
     }
     return gettersAndSetters;
