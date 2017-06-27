@@ -6,7 +6,7 @@ function TestDBRepository(RecordClass, dbPath, dbName) {
     _RecordClass = RecordClass
     _dbPath = dbPath;
     _dbName = dbName;
-    _gettersAndSetters = findGettersAndSetters();
+    _gettersAndSetters = _self.findGettersAndSetters();
 
     _testdb = new TestDB();
     _testdb.initDB(_dbPath);
