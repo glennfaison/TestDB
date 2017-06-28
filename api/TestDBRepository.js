@@ -34,12 +34,13 @@ TestDBRepository.classToJSONObject = function(instance) {
     var properties = TestDBRepository.propertiesOf(instance);
     for (var i in properties) {
         var propertyName = properties[i][0].toLowerCase() + properties[i].substr(1);
-        var tempObj = _self["get" + properties[i]]();
-        if (JSON.stringify(tempObj) !== JSON.stringify({}) && tempObj !== null) {
-            returnValue[propertyName] = tempObj;
+        var getter = "get" + properties[i];
+        var tempValue = instance[getter]();
+        if (JSON.stringify(tempValue) !== JSON.stringify({}) && tempValue !== null) {
+            returnValue[propertyName] = tempValue;
             continue;
         }
-        returnValue[propertyName] = TestDBRepository.classToJSONObject(tempObj);
+        returnValue[propertyName] = TestDBRepository.classToJSONObject(tempValue);
     }
     return returnValue;
 };
