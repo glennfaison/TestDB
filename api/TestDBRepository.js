@@ -43,20 +43,19 @@ TestDBRepository.classToJSONObject = function(instance) {
     }
     return returnValue;
 };
-TestDBRepository.prototype.JSONObjectToClass = function(instance, InstanceClass) {
-    var returnValue;
+TestDBRepository.JSONObjectToClass = function(instance, InstanceClass) {
     if (!InstanceClass) {
-        returnValue = new _RecordClass();
-    } else {
-        returnValue = new InstanceClass();
+        InstanceClass = _RecordClass;
     }
-
+    var returnValue = new InstanceClass();
+    //console.log(returnValue)
     for (var key in instance) {
+        if (key === "__proto__") { continue; }
         var setter = "set" + key[0].toUpperCase() + key.substr(1);
-        if (Object.keys(instance[key]).length > 0) {
+        if (JSON.stringify(instance[key])[0] === "{") {
             var getter = "get" + key[0].toUpperCase() + key.substr(1);
-            var TempClass = (instance.prototype[getter]).constructor;
-            var tempInstance = _self.JSONObjectToClass(instance, TempClass);
+            var TempClass = (returnValue[getter]()).constructor;
+            var tempInstance = TestDBRepository.JSONObjectToClass(instance, TempClass);
             returnValue[setter](tempInstance);
             continue;
         }
