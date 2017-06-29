@@ -49,14 +49,13 @@ TestDBRepository.JSONObjectToClass = function(instance, InstanceClass) {
         InstanceClass = _RecordClass;
     }
     var returnValue = new InstanceClass();
-    //console.log(returnValue)
     for (var key in instance) {
         if (key === "__proto__") { continue; }
         var setter = "set" + key[0].toUpperCase() + key.substr(1);
         if (JSON.stringify(instance[key])[0] === "{") {
             var getter = "get" + key[0].toUpperCase() + key.substr(1);
             var TempClass = (returnValue[getter]()).constructor;
-            var tempInstance = TestDBRepository.JSONObjectToClass(instance, TempClass);
+            var tempInstance = TestDBRepository.JSONObjectToClass(instance[key], TempClass);
             returnValue[setter](tempInstance);
             continue;
         }
