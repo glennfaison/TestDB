@@ -1,6 +1,5 @@
 var fs = require("fs");
 
-// testdb testdb constructor
 function TestDB() {
     _self = this;
     _currentDirectoryState = {
@@ -30,7 +29,7 @@ TestDB.prototype.dbIndexFilePath = function() {
 };
 
 TestDB.prototype.loadDBIndex = function() {
-    var data = fs.readFileSync(_self.dbIndexFilePath(), "utf8", "r");
+    var data = fs.readFileSync(this.dbIndexFilePath(), "utf8", "r");
     _currentDirectoryState._currentDirectoryIndex = JSON.parse(data);
 };
 
@@ -39,7 +38,7 @@ TestDB.prototype.useDB = function(directory) {
         directory = __dirname;
     }
     _currentDirectoryState._currentDirectory = directory;
-    _self.loadDBIndex();
+    this.loadDBIndex();
 };
 
 TestDB.prototype.fullTablePath = function(tableName) {
@@ -54,7 +53,7 @@ TestDB.prototype.tableNameExists = function(name) {
 };
 
 TestDB.prototype.commitDBIndex = function() {
-    fs.writeFileSync(_self.dbIndexFilePath(), JSON.stringify(_currentDirectoryState._currentDirectoryIndex), { flag: 'w' });
+    fs.writeFileSync(this.dbIndexFilePath(), JSON.stringify(_currentDirectoryState._currentDirectoryIndex), { flag: 'w' });
 };
 
 TestDB.prototype.defaultTableState = function(tableName) {
@@ -78,16 +77,16 @@ TestDB.prototype.createTable = function(tableName) {
         }
     }
     if (tableExists) { return; }
-    var table = _self.defaultTableState(tableName);
+    var table = this.defaultTableState(tableName);
     table = JSON.stringify(table);
     table = table.slice(1, table.length - 1);
 
 
-    var file = fs.createWriteStream(_self.fullTablePath(tableName), { flags: 'w' });
+    var file = fs.createWriteStream(this.fullTablePath(tableName), { flags: 'w' });
     file.write(table);
     file.close();
     _currentDirectoryState._currentDirectoryIndex.push(tableName);
-    _self.commitDBIndex();
+    this.commitDBIndex();
 };
 
 TestDB.prototype.nameIsValid = function(name) {
@@ -103,13 +102,14 @@ TestDB.prototype.nameIsValid = function(name) {
 };
 
 TestDB.prototype.loadTable = function(tableName) {
-    if (_currentDirectoryState._tableStates[tableName]) { return; }
-    if (!_self.nameIsValid(tableName) && !_self.tableNameExists(tableName)) {
-        return;
+    if (_currentDirectoryState._tableStates[tableName]) { return false; }
+    if (!this.nameIsValid(tableName) && !this.tableNameExists(tableName)) {
+        return false;
     }
-    var tableString = fs.readFileSync(_self.fullTablePath(tableName), 'utf8');
+    var tableString = fs.readFileSync(this.fullTablePath(tableName), 'utf8');
     tableString = "{" + tableString + "}";
     _currentDirectoryState._tableStates[tableName] = JSON.parse(tableString);
+    return true;
 };
 
 TestDB.prototype.defaultColAttribs = function() {
@@ -127,7 +127,7 @@ TestDB.prototype.defaultColAttribs = function() {
 };
 
 TestDB.prototype.fillAttribs = function(attribs) {
-    var tempAttribs = _self.defaultColAttribs();
+    var tempAttribs = this.defaultColAttribs();
     for (var key in attribs) {
         if (key in tempAttribs) {
             tempAttribs[key] = attribs[key];
@@ -147,7 +147,7 @@ TestDB.prototype.tableExists = function(tableName) {
 };
 
 TestDB.prototype.columnIsValid = function(tableName, colsPecs) {
-    colsPecs = _self.fillAttribs(colsPecs);
+    colsPecs = this.fillAttribs(colsPecs);
     if (colsPecs.name in Object.keys(_currentDirectoryState._tableStates[tableName].columns)) {
         return false;
     }
@@ -157,7 +157,7 @@ TestDB.prototype.columnIsValid = function(tableName, colsPecs) {
         colsPecs.isRequired = false;
     }
     if (colsPecs.isForeignKey) {
-        if (!_self.tableExists(_currentDirectoryState._tableStates[tableName].referencesTable)) {
+        if (!this.tableExists(_currentDirectoryState._tableStates[tableName].referencesTable)) {
             return false;
         }
     }
@@ -165,8 +165,8 @@ TestDB.prototype.columnIsValid = function(tableName, colsPecs) {
 };
 
 TestDB.prototype.createColumn = function(tableName, colAttribs) {
-    colAttribs = _self.fillAttribs(colAttribs);
-    if (!_self.columnIsValid(colAttribs)) { return; }
+    colAttribs = this.fillAttribs(colAttribs);
+    if (!this.columnIsValid(colAttribs)) { return; }
     _currentDirectoryState._tableStates[tableName].columns[colAttribs.name] = colAttribs;
 };
 
@@ -185,8 +185,8 @@ TestDB.prototype.commitTable = function(tableName) {
         _currentDirectoryState._tableStates[tableName] === null) { return; }
     var tableString = JSON.stringify(_currentDirectoryState._tableStates[tableName]);
     tableString = tableString.slice(1, tableString.length - 1);
-    fs.writeFileSync(_self.fullTablePath(tableName), tableString, { flag: 'w' });
-    _self.commitDBIndex();
+    fs.writeFileSync(this.fullTablePath(tableName), tableString, { flag: 'w' });
+    this.commitDBIndex();
 };
 
 /**
@@ -201,9 +201,9 @@ TestDB.prototype.dropTable = function(tableName) {
             break;
         }
     }
-    _self.commitDBIndex();
-    fs.renameSync(_self.fullTablePath(tableName), _self.fullTablePath(".deleted"));
-    _self.unloadTable(tableName);
+    this.commitDBIndex();
+    fs.renameSync(this.fullTablePath(tableName), this.fullTablePath(".deleted"));
+    this.unloadTable(tableName);
 };
 
 /**
@@ -212,13 +212,13 @@ TestDB.prototype.dropTable = function(tableName) {
  * @param {any} record The record you want to insert.
  */
 TestDB.prototype.insertRecord = function(tableName, record) {
-    _self.loadTable(tableName);
+    this.loadTable(tableName);
     var primaryKey = _currentDirectoryState._tableStates[tableName].metaData.primaryKey;
     _currentDirectoryState._tableStates[tableName][record[primaryKey]] = record;
 };
 
 TestDB.prototype.insertRecordWithKey = function(tableName, record, key) {
-    _self.loadTable(tableName);
+    this.loadTable(tableName);
     _currentDirectoryState._tableStates[tableName][key] = record;
 }
 
@@ -227,13 +227,14 @@ TestDB.prototype.deleteRecordWithKey = function(tableName, key) {
 };
 
 TestDB.prototype.selectRecordWithKey = function(tableName, key) {
-    _self.loadTable(tableName);
+    this.loadTable(tableName);
     if (!_currentDirectoryState._tableStates[tableName][key]) { return null; }
     return _currentDirectoryState._tableStates[tableName][key];
 };
 
 TestDB.prototype.selectAllRecords = function(tableName) {
-    _self.loadTable(tableName);
+    console.log(this);
+    this.loadTable(tableName);
     var records = _currentDirectoryState._tableStates[tableName];
     records = JSON.parse(JSON.stringify(records));
     delete records["metaData"];

@@ -67,7 +67,7 @@ TestDBRepository.prototype.findById = function(id) {
     return _testdb.selectRecordWithKey(_dbName, "" + id);
 };
 TestDBRepository.prototype.findAll = function() {
-    return _testdb.selectAllRecords();
+    return _testdb.selectAllRecords(_dbName);
 };
 TestDBRepository.prototype.delete = function(id) {
     _testdb.deleteRecordWithKey(_dbName, "" + id);
@@ -77,7 +77,7 @@ TestDBRepository.prototype.exists = function(id) {
     return _testdb.selectRecordWithKey(_dbName, "" + id) !== null;
 };
 TestDBRepository.prototype.save = function(instance) {
-    instance = _self.classToJSONObject(instance);
+    instance = this.classToJSONObject(instance);
     _testdb.insertRecordWithKey(_dbName, instance, "" + instance.id);
     _testdb.commitTable(_dbName);
 };
