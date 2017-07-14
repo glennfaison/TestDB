@@ -233,12 +233,10 @@ TestDB.prototype.selectRecordWithKey = function(tableName, key) {
 };
 
 TestDB.prototype.selectAllRecords = function(tableName) {
-    console.log(this);
     this.loadTable(tableName);
     var records = _currentDirectoryState._tableStates[tableName];
     records = JSON.parse(JSON.stringify(records));
     delete records["metaData"];
-    console.log(records);
     var returnValue = [];
     for (var key in records) {
         returnValue.push(records[key]);
