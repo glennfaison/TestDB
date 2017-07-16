@@ -1,0 +1,17 @@
+{
+    "name": "testdb_dao",
+    "version": "1.0.0",
+    "description": "A JavaScript data access utility for testdb.",
+    "main": "index.js",
+    "dependencies": {
+        "testdb": "^1.0.0"
+    },
+    "scripts": {
+        "test": "testdb_dao"
+    },
+    "keywords": [
+        "testdb_dao"
+    ],
+    "author": "Glenn Faison",
+    "license": "ISC"
+}

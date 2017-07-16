@@ -1,0 +1,28 @@
+{
+    "name": "testdb",
+    "version": "1.0.0",
+    "description": "A file-system, JSON file-based database.",
+    "main": "index.js",
+    "dependencies": {
+        "fs": "^1.0.0",
+        "body-parser": "^1.0.0",
+        "fs-extra": "^1.0.0"
+    },
+    "devDependencies": {},
+    "scripts": {
+        "test": "testdb"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/glennfaison/TestDB.git"
+    },
+    "keywords": [
+        "testdb"
+    ],
+    "author": "Glenn Faison",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/glennfaison/TestDB/issues"
+    },
+    "homepage": "https://github.com/glennfaison/TestDB#readme"
+}
