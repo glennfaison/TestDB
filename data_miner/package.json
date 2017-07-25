@@ -1,0 +1,22 @@
+{
+    "name": "data_miner",
+    "version": "1.0.0",
+    "description": "A simple data access tool for testdb.",
+    "main": "index.js",
+    "scripts": {
+        "test": "data_miner"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/glennfaison/TestDB.git"
+    },
+    "keywords": [
+        "data_miner"
+    ],
+    "author": "Glenn Faison",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/glennfaison/TestDB/issues"
+    },
+    "homepage": "https://github.com/glennfaison/TestDB#readme"
+}
